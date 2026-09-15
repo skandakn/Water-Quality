@@ -379,20 +379,28 @@ export async function fetchTelegramUpdates(): Promise<TelegramUpdateChat[]> {
   return await res.json();
 }
 
-export async function sendTelegramTest(): Promise<TelegramSendResult> {
-  const res = await fetch(`${API_BASE}/telegram/send-test`, { method: 'POST' });
+function telegramTargetBody(chatId?: string): RequestInit {
+  return {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(chatId ? { chat_id: chatId } : {})
+  };
+}
+
+export async function sendTelegramTest(chatId?: string): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/send-test`, telegramTargetBody(chatId));
   if (!res.ok) throw new Error(await readApiError(res));
   return await res.json();
 }
 
-export async function sendTelegramAlert(alertId: number): Promise<TelegramSendResult> {
-  const res = await fetch(`${API_BASE}/telegram/alerts/${alertId}/send`, { method: 'POST' });
+export async function sendTelegramAlert(alertId: number, chatId?: string): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/alerts/${alertId}/send`, telegramTargetBody(chatId));
   if (!res.ok) throw new Error(await readApiError(res));
   return await res.json();
 }
 
-export async function sendActiveTelegramAlerts(): Promise<TelegramSendResult> {
-  const res = await fetch(`${API_BASE}/telegram/alerts/send-active`, { method: 'POST' });
+export async function sendActiveTelegramAlerts(chatId?: string): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/alerts/send-active`, telegramTargetBody(chatId));
   if (!res.ok) throw new Error(await readApiError(res));
   return await res.json();
 }

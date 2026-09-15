@@ -44,6 +44,10 @@ class TelegramSendResult(BaseModel):
     detail: str
 
 
+class TelegramTargetRequest(BaseModel):
+    chat_id: Optional[str] = None
+
+
 def _telegram_error(error: TelegramApiError) -> HTTPException:
     return HTTPException(status_code=400, detail=str(error))
 
@@ -74,12 +78,13 @@ def list_recent_telegram_chats(
 
 
 @router.post("/send-test", response_model=TelegramSendResult)
-def send_test_message(user=Depends(require_analyst)):
+def send_test_message(payload: Optional[TelegramTargetRequest] = None, user=Depends(require_analyst)):
     try:
         result = telegram_notifier.send_message(
             "Telegram delivery is connected to Jaal Drushti. Future lake health alerts can be dispatched from the Alerts command page.",
             title="Jaal Drushti Telegram Test",
             message_type="test",
+            chat_id=payload.chat_id if payload else None,
         )
     except TelegramApiError as exc:
         raise _telegram_error(exc)
@@ -89,6 +94,7 @@ def send_test_message(user=Depends(require_analyst)):
 @router.post("/alerts/{alert_id}/send", response_model=TelegramSendResult)
 def send_alert_to_telegram(
     alert_id: int,
+    payload: Optional[TelegramTargetRequest] = None,
     db: Session = Depends(get_db),
     user=Depends(require_analyst),
 ):
@@ -96,7 +102,7 @@ def send_alert_to_telegram(
     if not alert or not alert.lake:
         raise HTTPException(status_code=404, detail="Alert not found")
     try:
-        result = telegram_notifier.send_alert(alert, alert.lake)
+        result = telegram_notifier.send_alert(alert, alert.lake, chat_id=payload.chat_id if payload else None)
     except TelegramApiError as exc:
         raise _telegram_error(exc)
     return {"ok": True, "message_id": result.get("message_id"), "detail": "Alert sent to Telegram"}
@@ -104,6 +110,7 @@ def send_alert_to_telegram(
 
 @router.post("/alerts/send-active", response_model=TelegramSendResult)
 def send_active_alert_digest(
+    payload: Optional[TelegramTargetRequest] = None,
     lake_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
     user=Depends(require_analyst),
@@ -113,7 +120,7 @@ def send_active_alert_digest(
         query = query.filter(Alert.lake_id == lake_id)
     alerts = query.order_by(Alert.created_at.desc()).all()
     try:
-        result = telegram_notifier.send_active_digest(alerts)
+        result = telegram_notifier.send_active_digest(alerts, chat_id=payload.chat_id if payload else None)
     except TelegramApiError as exc:
         raise _telegram_error(exc)
     return {

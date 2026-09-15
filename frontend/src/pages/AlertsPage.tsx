@@ -18,6 +18,7 @@ export const AlertsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [telegramStatus, setTelegramStatus] = useState<TelegramStatus | null>(null);
   const [telegramChats, setTelegramChats] = useState<TelegramUpdateChat[]>([]);
+  const [selectedChatId, setSelectedChatId] = useState<string>('');
   const [telegramNotice, setTelegramNotice] = useState<string>('');
   const [telegramBusy, setTelegramBusy] = useState<string>('');
   const [sendingAlertId, setSendingAlertId] = useState<number | null>(null);
@@ -76,18 +77,19 @@ export const AlertsPage: React.FC = () => {
     runTelegramAction('detect-chats', async () => {
       const chats = await fetchTelegramUpdates();
       setTelegramChats(chats);
+      if (!selectedChatId && chats[0]?.chat_id) setSelectedChatId(chats[0].chat_id);
       return chats.length ? `${chats.length} Telegram chat target${chats.length === 1 ? '' : 's'} detected` : 'No recent Telegram chats detected';
     });
 
   const handleSendTest = () =>
     runTelegramAction('send-test', async () => {
-      const result = await sendTelegramTest();
+      const result = await sendTelegramTest(selectedChatId || undefined);
       return result.detail;
     });
 
   const handleSendDigest = () =>
     runTelegramAction('send-digest', async () => {
-      const result = await sendActiveTelegramAlerts();
+      const result = await sendActiveTelegramAlerts(selectedChatId || undefined);
       return `${result.detail}: ${result.sent_count} active alert${result.sent_count === 1 ? '' : 's'}`;
     });
 
@@ -95,7 +97,7 @@ export const AlertsPage: React.FC = () => {
     setSendingAlertId(id);
     setTelegramNotice('');
     try {
-      const result = await sendTelegramAlert(id);
+      const result = await sendTelegramAlert(id, selectedChatId || undefined);
       setTelegramNotice(result.detail);
     } catch (err) {
       setTelegramNotice(err instanceof Error ? err.message : 'Telegram alert send failed');
@@ -189,6 +191,23 @@ export const AlertsPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {telegramChats.length > 0 && (
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2 border-t border-slate-800 pt-3">
+            <label className="text-xs font-semibold text-slate-300">Target chat</label>
+            <select
+              value={selectedChatId}
+              onChange={(event) => setSelectedChatId(event.target.value)}
+              className="bg-slate-900 border border-slate-800 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-400"
+            >
+              {telegramChats.map((chat) => (
+                <option key={`${chat.chat_id}-${chat.update_id || ''}`} value={chat.chat_id}>
+                  {(chat.title || chat.username || [chat.first_name, chat.last_name].filter(Boolean).join(' ') || chat.chat_type || 'Telegram chat')} ({chat.chat_id})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {(telegramNotice || telegramChats.length > 0) && (
           <div className="mt-4 border-t border-slate-800 pt-3 space-y-2">

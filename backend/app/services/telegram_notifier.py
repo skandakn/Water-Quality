@@ -125,20 +125,22 @@ class TelegramNotifier:
         })
         return {"message_id": result.get("message_id")}
 
-    def send_alert(self, alert: Alert, lake: Lake) -> Dict[str, Any]:
+    def send_alert(self, alert: Alert, lake: Lake, chat_id: Optional[str] = None) -> Dict[str, Any]:
         return self.send_message(
             format_alert_body(alert, lake),
             title=f"{alert.severity.title()} Water Alert: {lake.name}",
             message_type="warning" if alert.severity.upper() in {"LOW", "MODERATE"} else "critical",
+            chat_id=chat_id,
         )
 
-    def send_active_digest(self, alerts: Iterable[Alert]) -> Dict[str, Any]:
+    def send_active_digest(self, alerts: Iterable[Alert], chat_id: Optional[str] = None) -> Dict[str, Any]:
         alert_list = list(alerts)
         if not alert_list:
             return self.send_message(
                 "No active lake water-quality alerts are currently open.",
                 title="Jaal Drushti Alert Digest",
                 message_type="success",
+                chat_id=chat_id,
             )
 
         lines = [f"{len(alert_list)} active water-quality alert(s) require review."]
@@ -152,7 +154,12 @@ class TelegramNotifier:
             lines.append(f"{len(alert_list) - 12} additional alerts are visible in the dashboard.")
         if settings.FRONTEND_URL:
             lines.append(f"Dashboard: {settings.FRONTEND_URL}/alerts")
-        return self.send_message("\n\n".join(lines), title="Jaal Drushti Active Alert Digest", message_type="summary")
+        return self.send_message(
+            "\n\n".join(lines),
+            title="Jaal Drushti Active Alert Digest",
+            message_type="summary",
+            chat_id=chat_id,
+        )
 
 
 def format_telegram_message(title: str, message: str, message_type: str = "alert") -> str:
