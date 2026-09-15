@@ -3,13 +3,25 @@ Jaal Drushti - Machine Learning Prediction Service
 Provides short-term multi-day WQI forecasting and ecological risk classification.
 """
 
-import os
-from pathlib import Path
 from datetime import date, timedelta
-from typing import List, Dict, Any, Optional
-import numpy as np
+from typing import List, Dict, Any
 
 from app.config import settings
+
+def _trend_slope(values: List[float]) -> float:
+    """Return least-squares slope for evenly spaced daily values."""
+    n = len(values)
+    if n <= 1:
+        return 0.0
+
+    x_mean = (n - 1) / 2
+    y_mean = sum(values) / n
+    denominator = sum((i - x_mean) ** 2 for i in range(n))
+    if denominator == 0:
+        return 0.0
+
+    numerator = sum((i - x_mean) * (value - y_mean) for i, value in enumerate(values))
+    return numerator / denominator
 
 class MLPredictionService:
     def __init__(self):
@@ -58,9 +70,7 @@ class MLPredictionService:
         # Compute recent trend slope (points per day over last 7 to 14 days)
         window = min(n, 14)
         recent_window = historical_wqi_series[-window:]
-        x = np.arange(len(recent_window))
-        y = np.array(recent_window)
-        slope, intercept = np.polyfit(x, y, 1) if len(recent_window) > 1 else (0.0, current_wqi)
+        slope = _trend_slope([float(value) for value in recent_window])
 
         # Turbidity or DO stress dampener
         turbidity = latest_parameters.get("turbidity", 10.0)

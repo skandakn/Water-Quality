@@ -6,7 +6,7 @@
   "functions": {
     "api/**/*.py": {
       "maxDuration": 60,
-      "excludeFiles": "{frontend/node_modules/**,frontend/dist/**,backend/tests/**,**/__pycache__/**,**/*.pyc,jaal_drushti.db}"
+      "excludeFiles": "{frontend/node_modules/**,frontend/dist/**,backend/tests/**,ml/training/**,ml/models/**,**/__pycache__/**,**/*.pyc,jaal_drushti.db}"
     }
   },
   "rewrites": [
