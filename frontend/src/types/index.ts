@@ -171,3 +171,29 @@ export interface CSVUploadValidationResult {
   preview_rows: CSVRowValidation[];
   can_import: boolean;
 }
+
+export interface TelegramStatus {
+  configured: boolean;
+  chat_configured: boolean;
+  bot_username?: string;
+  bot_link?: string;
+}
+
+export interface TelegramUpdateChat {
+  update_id?: number;
+  chat_id: string;
+  chat_type?: string;
+  title?: string;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
+  message_preview?: string;
+  received_at?: string;
+}
+
+export interface TelegramSendResult {
+  ok: boolean;
+  message_id?: number;
+  sent_count: number;
+  detail: string;
+}

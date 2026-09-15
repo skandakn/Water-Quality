@@ -61,6 +61,13 @@ class Settings:
     
     # Demo Mode
     DEMO_MODE: bool = os.getenv("DEMO_MODE", "true").lower() == "true"
+
+    # Telegram alert delivery
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "").rstrip("/")
+    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    TELEGRAM_BOT_USERNAME: str = os.getenv("TELEGRAM_BOT_USERNAME", "").strip().lstrip("@")
+    TELEGRAM_REQUEST_TIMEOUT_SECONDS: float = float(os.getenv("TELEGRAM_REQUEST_TIMEOUT_SECONDS", "10"))
     
     # ML Model Path
     MODEL_DIR: Path = BASE_DIR / "ml" / "models"

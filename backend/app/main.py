@@ -18,7 +18,7 @@ from app.database import engine, Base, SessionLocal
 from app.models.models import Lake
 from app.routers import (
     auth, lakes, dashboard, water_quality, 
-    wqi, trends, predictions, satellite, alerts, reports
+    wqi, trends, predictions, satellite, alerts, reports, telegram
 )
 
 @asynccontextmanager
@@ -75,6 +75,7 @@ app.include_router(predictions.router)
 app.include_router(satellite.router)
 app.include_router(alerts.router)
 app.include_router(reports.router)
+app.include_router(telegram.router)
 
 @app.get("/")
 def root_endpoint():

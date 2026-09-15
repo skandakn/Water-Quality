@@ -254,6 +254,9 @@ Production environment variables:
 | `DEMO_MODE` | Optional | Defaults to `true`. |
 | `FRONTEND_URL` | Optional | Set to your production URL when using strict CORS. |
 | `CORS_ORIGINS` | Optional | JSON list or comma-separated origin list. |
+| `TELEGRAM_BOT_TOKEN` | Optional | Server-side BotFather token for alert delivery. Never expose this in frontend code. |
+| `TELEGRAM_CHAT_ID` | Optional | Target chat, group, or channel ID for lake alert dispatches. |
+| `TELEGRAM_BOT_USERNAME` | Optional | Bot username shown in the Alerts command page. |
 
 After deployment, verify:
 
@@ -300,6 +303,12 @@ Use the **Hackathon Evaluation Mode** toggle at the top of the dashboard to inst
 | `POST` | `/api/water-quality/upload-csv` | Validates and audits uploaded CSV before database commit |
 | `GET` | `/api/alerts?severity=CRITICAL` | Filtered list of active early-warning flags |
 | `GET` | `/api/reports/{lake_id}` | Executive dossier report payload for printable/JSON export |
+| `GET` | `/api/telegram/status` | Telegram bot/chat configuration status without exposing secrets |
+| `POST` | `/api/telegram/test` | Validate the configured bot token with Telegram |
+| `GET` | `/api/telegram/updates` | Detect recent chats after sending `/start` to the bot |
+| `POST` | `/api/telegram/send-test` | Send a test message to the configured chat |
+| `POST` | `/api/telegram/alerts/{alert_id}/send` | Dispatch one active lake alert to Telegram |
+| `POST` | `/api/telegram/alerts/send-active` | Dispatch an active-alert digest to Telegram |
 
 ---
 

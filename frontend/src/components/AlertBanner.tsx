@@ -1,13 +1,15 @@
 import React from 'react';
 import { AlertItem } from '../types';
-import { AlertTriangle, AlertCircle, ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ArrowRight, Send } from 'lucide-react';
 
 interface AlertBannerProps {
   alerts: AlertItem[];
   onAcknowledge?: (id: number) => void;
+  onSendTelegram?: (id: number) => void;
+  sendingAlertId?: number | null;
 }
 
-export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onAcknowledge }) => {
+export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onAcknowledge, onSendTelegram, sendingAlertId }) => {
   if (!alerts || alerts.length === 0) {
     return (
       <div className="rounded-2xl bg-gradient-to-r from-emerald-950/20 via-[#0b1426]/90 to-[#070d1a]/95 border border-emerald-500/20 p-4 flex items-center justify-between shadow-lg">
@@ -89,14 +91,28 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onAcknowledge 
               </div>
             </div>
 
-            {onAcknowledge && alert.status === 'ACTIVE' && (
-              <button
-                onClick={() => onAcknowledge(alert.id)}
-                className="shrink-0 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>Acknowledge</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+            {alert.status === 'ACTIVE' && (
+              <div className="shrink-0 flex flex-col sm:flex-row md:flex-col xl:flex-row gap-2">
+                {onSendTelegram && (
+                  <button
+                    onClick={() => onSendTelegram(alert.id)}
+                    disabled={sendingAlertId === alert.id}
+                    className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-60 text-cyan-200 border border-cyan-500/30 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{sendingAlertId === alert.id ? 'Sending' : 'Telegram'}</span>
+                  </button>
+                )}
+                {onAcknowledge && (
+                  <button
+                    onClick={() => onAcknowledge(alert.id)}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Acknowledge</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             )}
           </div>
         );

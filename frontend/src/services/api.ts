@@ -1,6 +1,7 @@
 import { 
   Lake, LakeCardSummary, DashboardData, TrendSummary, 
-  AIForecast, SatelliteObservation, AlertItem, CSVUploadValidationResult 
+  AIForecast, SatelliteObservation, AlertItem, CSVUploadValidationResult,
+  TelegramStatus, TelegramUpdateChat, TelegramSendResult
 } from '../types';
 
 const API_BASE = '/api';
@@ -357,5 +358,50 @@ export async function fetchLakeReport(lakeId: number): Promise<any> {
         'Investigate upstream point sources for potential organic discharge.'
       ]
     };
+  }
+}
+
+export async function fetchTelegramStatus(): Promise<TelegramStatus> {
+  const res = await fetch(`${API_BASE}/telegram/status`);
+  if (!res.ok) throw new Error(`Telegram status failed with HTTP ${res.status}`);
+  return await res.json();
+}
+
+export async function testTelegramBot(): Promise<{ ok: boolean; username?: string; first_name?: string }> {
+  const res = await fetch(`${API_BASE}/telegram/test`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function fetchTelegramUpdates(): Promise<TelegramUpdateChat[]> {
+  const res = await fetch(`${API_BASE}/telegram/updates`);
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function sendTelegramTest(): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/send-test`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function sendTelegramAlert(alertId: number): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/alerts/${alertId}/send`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function sendActiveTelegramAlerts(): Promise<TelegramSendResult> {
+  const res = await fetch(`${API_BASE}/telegram/alerts/send-active`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+async function readApiError(res: Response): Promise<string> {
+  try {
+    const body = await res.json();
+    return body.detail || `HTTP ${res.status}`;
+  } catch {
+    return `HTTP ${res.status}`;
   }
 }
