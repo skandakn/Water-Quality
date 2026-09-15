@@ -1,7 +1,8 @@
 import { 
   Lake, LakeCardSummary, DashboardData, TrendSummary, 
   AIForecast, SatelliteObservation, AlertItem, CSVUploadValidationResult,
-  TelegramStatus, TelegramUpdateChat, TelegramSendResult
+  TelegramStatus, TelegramUpdateChat, TelegramSendResult,
+  PrithviStatus, PrithviAnalysisResult
 } from '../types';
 
 const API_BASE = '/api';
@@ -359,6 +360,29 @@ export async function fetchLakeReport(lakeId: number): Promise<any> {
       ]
     };
   }
+}
+
+export async function fetchPrithviStatus(): Promise<PrithviStatus> {
+  const res = await fetch(`${API_BASE}/prithvi/status`);
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function runPrithviDemo(): Promise<PrithviAnalysisResult> {
+  const res = await fetch(`${API_BASE}/prithvi/demo`, { method: 'POST' });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
+}
+
+export async function analyzePrithviImage(file: File): Promise<PrithviAnalysisResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_BASE}/prithvi/analyze`, {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error(await readApiError(res));
+  return await res.json();
 }
 
 export async function fetchTelegramStatus(): Promise<TelegramStatus> {

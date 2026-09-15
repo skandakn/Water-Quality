@@ -257,6 +257,9 @@ Production environment variables:
 | `TELEGRAM_BOT_TOKEN` | Optional | Server-side BotFather token for alert delivery. Never expose this in frontend code. |
 | `TELEGRAM_CHAT_ID` | Optional | Target chat, group, or channel ID for lake alert dispatches. |
 | `TELEGRAM_BOT_USERNAME` | Optional | Bot username shown in the Alerts command page. |
+| `PRITHVI_API_BASE_URL` | Optional | URL for a separately running Prithvi EO model API. Required for live GeoTIFF upload inference. |
+| `PRITHVI_MODEL_ROOT` | Optional | Local path used for readiness checks, for example `C:\Users\skand\Documents\Pruthvi-model`. |
+| `PRITHVI_REQUEST_TIMEOUT_SECONDS` | Optional | Timeout for heavy model inference proxy requests. Defaults to `300`. |
 
 After deployment, verify:
 
@@ -264,6 +267,32 @@ After deployment, verify:
 curl https://your-vercel-domain.vercel.app/
 curl https://your-vercel-domain.vercel.app/api/health
 ```
+
+### Prithvi / Pruthvi EO Model Integration
+
+The website includes a dedicated **Prithvi AI** page at `/prithvi` and backend endpoints under `/api/prithvi/*`.
+
+Because the real Prithvi checkpoint is about 1.28 GB and depends on Torch, TerraTorch, Rasterio, and GDAL, it is not bundled into the Vercel serverless function. The deployed website works in a safe demo/proxy mode:
+
+- `/api/prithvi/status` reports whether a live Prithvi model API is connected.
+- `/api/prithvi/demo` returns bundled Prithvi inference output imagery and water extent metrics.
+- `/api/prithvi/analyze` forwards uploaded Sentinel-2 GeoTIFFs to the configured model API.
+
+To enable live local inference from `C:\Users\skand\Documents\Pruthvi-model`:
+
+```bat
+cd C:\Users\skand\Documents\Pruthvi-model\website\backend
+call C:\Users\skand\Documents\Pruthvi-model\.venv\Scripts\activate.bat
+uvicorn main:app --host 127.0.0.1 --port 8001
+```
+
+Then set this app's environment variable:
+
+```bash
+PRITHVI_API_BASE_URL=http://127.0.0.1:8001
+```
+
+For production live inference, host the Prithvi backend on a GPU/CPU service that can carry the 1.28 GB checkpoint, then set `PRITHVI_API_BASE_URL` in Vercel to that service URL.
 
 ---
 
@@ -309,6 +338,9 @@ Use the **Hackathon Evaluation Mode** toggle at the top of the dashboard to inst
 | `POST` | `/api/telegram/send-test` | Send a test message to the configured chat |
 | `POST` | `/api/telegram/alerts/{alert_id}/send` | Dispatch one active lake alert to Telegram |
 | `POST` | `/api/telegram/alerts/send-active` | Dispatch an active-alert digest to Telegram |
+| `GET` | `/api/prithvi/status` | Prithvi model/API readiness and mode status |
+| `POST` | `/api/prithvi/demo` | Return bundled Prithvi demo inference metrics and imagery |
+| `POST` | `/api/prithvi/analyze` | Proxy a Sentinel-2 GeoTIFF upload to a connected Prithvi model service |
 
 ---
 

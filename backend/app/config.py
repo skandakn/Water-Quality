@@ -68,6 +68,13 @@ class Settings:
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     TELEGRAM_BOT_USERNAME: str = os.getenv("TELEGRAM_BOT_USERNAME", "").strip().lstrip("@")
     TELEGRAM_REQUEST_TIMEOUT_SECONDS: float = float(os.getenv("TELEGRAM_REQUEST_TIMEOUT_SECONDS", "10"))
+
+    # Prithvi EO water extent model
+    # The real model/checkpoint is too large for Vercel serverless functions. For live
+    # inference in production, point this app at a separately hosted Prithvi model API.
+    PRITHVI_API_BASE_URL: str = os.getenv("PRITHVI_API_BASE_URL", "").strip().rstrip("/")
+    PRITHVI_MODEL_ROOT: str = os.getenv("PRITHVI_MODEL_ROOT", "").strip()
+    PRITHVI_REQUEST_TIMEOUT_SECONDS: float = float(os.getenv("PRITHVI_REQUEST_TIMEOUT_SECONDS", "300"))
     
     # ML Model Path
     MODEL_DIR: Path = BASE_DIR / "ml" / "models"

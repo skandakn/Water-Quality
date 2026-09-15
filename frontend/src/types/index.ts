@@ -197,3 +197,43 @@ export interface TelegramSendResult {
   sent_count: number;
   detail: string;
 }
+
+export interface PrithviStatus {
+  configured: boolean;
+  mode: 'external' | 'local-ready' | 'demo' | string;
+  external_api_configured: boolean;
+  external_api_reachable: boolean;
+  external_api_base_url?: string;
+  external_model_loaded?: boolean | null;
+  local_model_root?: string;
+  checkpoint_found: boolean;
+  demo_image_found: boolean;
+  supports_live_upload: boolean;
+  demo_available: boolean;
+  model_name: string;
+  required_input: string;
+  note: string;
+  error?: string;
+}
+
+export interface PrithviAnalysisResult {
+  job_id: string;
+  water_pixels?: number;
+  total_pixels?: number;
+  valid_pixels?: number;
+  water_percentage: number;
+  water_area_km2: number;
+  area_is_estimated: boolean;
+  status: string;
+  risk_level: 'MINIMAL' | 'LOW' | 'MODERATE' | 'HIGH' | string;
+  risk_label: string;
+  ai_summary: string;
+  model?: string;
+  source?: string;
+  mode?: string;
+  images?: {
+    original_rgb?: string;
+    water_mask?: string;
+    overlay?: string;
+  };
+}

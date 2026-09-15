@@ -18,7 +18,7 @@ from app.database import engine, Base, SessionLocal
 from app.models.models import Lake
 from app.routers import (
     auth, lakes, dashboard, water_quality, 
-    wqi, trends, predictions, satellite, alerts, reports, telegram
+    wqi, trends, predictions, satellite, alerts, reports, telegram, prithvi
 )
 
 @asynccontextmanager
@@ -76,6 +76,7 @@ app.include_router(satellite.router)
 app.include_router(alerts.router)
 app.include_router(reports.router)
 app.include_router(telegram.router)
+app.include_router(prithvi.router)
 
 @app.get("/")
 def root_endpoint():
@@ -98,9 +99,11 @@ def health_check():
         "database": "connected",
         "engine": "WAWQI_v1.0",
         "ml_service": "RF_TS_v1.0",
+        "prithvi_service": "proxy_configured" if settings.PRITHVI_API_BASE_URL else "demo_ready",
         "mode": "DEMO / HACKATHON" if settings.DEMO_MODE else "PRODUCTION"
     }
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+

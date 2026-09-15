@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Waves, Eye, Activity, MapPin, TrendingUp, Sparkles, 
-  AlertTriangle, FileText, Database, Info, Menu, X, ShieldCheck
+  AlertTriangle, FileText, Database, Info, Menu, X, ShieldCheck, Satellite
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -20,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDemoMode = true }) => {
     { label: 'Lakes', path: '/lakes', icon: MapPin },
     { label: 'Water Quality', path: '/dashboard#water-quality', icon: Waves },
     { label: 'Satellite Monitor', path: '/dashboard#satellite', icon: Eye },
+    { label: 'Prithvi AI', path: '/prithvi', icon: Satellite },
     { label: 'Trends', path: '/trends', icon: TrendingUp },
     { label: 'Predictions', path: '/predictions', icon: Sparkles },
     { label: 'Alerts', path: '/alerts', icon: AlertTriangle },
