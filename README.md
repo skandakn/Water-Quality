@@ -224,6 +224,46 @@ docker compose up --build
 
 ---
 
+### Option 3: Vercel Deployment (Frontend + FastAPI Backend)
+
+This repository can deploy from the repository root as a single Vercel project:
+
+```bash
+# From repo root
+vercel --prod
+```
+
+Vercel uses:
+- `package.json` at the repository root to build the Vite frontend from `frontend/`
+- `api/index.py` as the FastAPI serverless entrypoint
+- `requirements.txt` at the repository root to install backend Python dependencies
+- `vercel.json` to serve `/api/*` through FastAPI and all other paths through the Vite SPA
+
+Recommended Vercel project settings:
+- Root Directory: repository root
+- Build Command: `npm run vercel-build`
+- Output Directory: `frontend/dist`
+- Install Command: leave default unless your team overrides it
+
+Production environment variables:
+
+| Variable | Required | Notes |
+|---|---:|---|
+| `SECRET_KEY` | Yes | Set a strong unique value in Vercel. |
+| `DATABASE_URL` | Optional for demo, recommended for production | If omitted on Vercel, the API uses SQLite in `/tmp` and auto-seeds demo data on cold start. Use Neon, Supabase, Vercel Postgres, or another PostgreSQL URL for persistent data. |
+| `DEMO_MODE` | Optional | Defaults to `true`. |
+| `FRONTEND_URL` | Optional | Set to your production URL when using strict CORS. |
+| `CORS_ORIGINS` | Optional | JSON list or comma-separated origin list. |
+
+After deployment, verify:
+
+```bash
+curl https://your-vercel-domain.vercel.app/
+curl https://your-vercel-domain.vercel.app/api/health
+```
+
+---
+
 ## Demo Scenarios for Hackathon Judges
 
 Use the **Hackathon Evaluation Mode** toggle at the top of the dashboard to instantly demonstrate 3 real-world scenarios:

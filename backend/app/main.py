@@ -2,12 +2,16 @@ import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BACKEND_DIR.parent
+
+for path in (ROOT_DIR, BACKEND_DIR):
+    path_str = str(path)
+    if path_str not in sys.path:
+        sys.path.insert(0, path_str)
 
 from app.config import settings
 from app.database import engine, Base, SessionLocal
@@ -81,6 +85,10 @@ def root_endpoint():
         "docs_url": "/docs",
         "version": settings.APP_VERSION
     }
+
+@app.get("/api")
+def api_root_endpoint():
+    return root_endpoint()
 
 @app.get("/api/health")
 def health_check():
